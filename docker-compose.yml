@@ -26,6 +26,17 @@ services:
       JWT_ALGORITHM: HS256
       JWT_EXPIRE_MINUTES: 480
       CORS_ORIGINS: '["http://localhost:3000"]'
+      UPLOADS_DIR: /app/uploads
+      MAX_UPLOAD_MB: "20"
+      SMTP_HOST: ""
+      SMTP_PORT: "587"
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+      SMTP_TLS: "true"
+      SMTP_FROM: "no-reply@electricatiltil.cl"
+      SMTP_FROM_NAME: "Electrica TilTil"
+      ADMIN_NOTIFY_EMAIL: "admin@tiltil.cl"
+      PORTAL_PUBLIC_URL: "http://localhost:3000"
     ports:
       - "8001:8000"
     depends_on:
@@ -33,6 +44,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - tiltil_uploads:/app/uploads
     command: >
       sh -c "alembic upgrade head &&
              python seed.py &&
@@ -56,3 +68,4 @@ services:
 
 volumes:
   pgdata:
+  tiltil_uploads:

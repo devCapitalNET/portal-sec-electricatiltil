@@ -85,3 +85,24 @@ export const DATUM: Record<number, string> = {
 };
 
 export const TIPO_ZONA_UTM: Record<number, string> = { [-1]: "No aplica", 18: "Huso 18", 19: "Huso 19" };
+
+export const TIPO_DOCUMENTO: Record<string, string> = {
+  antecedente_cliente: "Antecedente del cliente",
+  estudio_tecnico: "Estudio técnico",
+  presupuesto: "Presupuesto",
+  certificado_factibilidad: "Certificado de factibilidad",
+  te1: "TE-1",
+  plano: "Plano",
+  otro: "Otro",
+};
+
+export const TIPOS_DOCUMENTO_ADMIN = [
+  "certificado_factibilidad",
+  "estudio_tecnico",
+  "presupuesto",
+  "te1",
+  "plano",
+  "otro",
+] as const;
+
+export const TIPOS_DOCUMENTO_CLIENTE = ["antecedente_cliente", "plano", "otro"] as const;

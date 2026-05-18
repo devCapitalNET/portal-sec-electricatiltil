@@ -122,7 +122,7 @@ async def seed_solicitudes(session) -> None:
             TipoTramite.FACTIBILIDAD,
             fecha_ingreso=date(2026, 3, 1),
             fecha_ultima_actualizacion=date(2026, 3, 1),
-            estado_actual=EstadoActual.EN_ANALISIS_ADMISIBILIDAD,
+            estado_actual=EstadoActual.PENDIENTE_INFORMACION_CLIENTE,
             requirente_rut="22.333.444-5",
             requirente_nombre="Maria Gonzalez Soto",
             requirente_email="maria@correo.cl",
@@ -186,15 +186,26 @@ async def seed_solicitudes(session) -> None:
     for s in solicitudes:
         session.add(s)
         await session.flush()
-        session.add(
-            SolicitudHistorial(
-                solicitud_id=s.id,
-                estado_anterior=None,
-                estado_nuevo=s.estado_actual,
-                motivo="Seed inicial",
-                usuario_id=None,
+        if s.estado_actual == EstadoActual.PENDIENTE_INFORMACION_CLIENTE:
+            session.add(
+                SolicitudHistorial(
+                    solicitud_id=s.id,
+                    estado_anterior=EstadoActual.EN_ANALISIS_ADMISIBILIDAD,
+                    estado_nuevo=s.estado_actual,
+                    motivo="Falta adjuntar plano de planta y certificado de dominio vigente del inmueble.",
+                    usuario_id=None,
+                )
             )
-        )
+        else:
+            session.add(
+                SolicitudHistorial(
+                    solicitud_id=s.id,
+                    estado_anterior=None,
+                    estado_nuevo=s.estado_actual,
+                    motivo="Seed inicial",
+                    usuario_id=None,
+                )
+            )
 
 
 async def main() -> None:

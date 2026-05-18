@@ -3,14 +3,19 @@ const API_URL =
     ? process.env.API_URL_INTERNAL || "http://backend:8000"
     : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export const apiBaseUrl = API_URL;
+
 export type ApiOptions = RequestInit & { token?: string | null };
 
 export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const { token, headers, ...rest } = opts;
+  const { token, headers, body, ...rest } = opts;
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  const baseHeaders: Record<string, string> = isFormData ? {} : { "Content-Type": "application/json" };
   const res = await fetch(`${API_URL}${path}`, {
     ...rest,
+    body,
     headers: {
-      "Content-Type": "application/json",
+      ...baseHeaders,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(headers || {}),
     },

@@ -114,6 +114,12 @@ class Solicitud(Base):
     historial: Mapped[list[SolicitudHistorial]] = relationship(
         back_populates="solicitud", cascade="all, delete-orphan", order_by="SolicitudHistorial.created_at.desc()"
     )
+    documentos = relationship(
+        "Documento",
+        back_populates="solicitud",
+        cascade="all, delete-orphan",
+        order_by="Documento.created_at.desc()",
+    )
 
 
 class SolicitudHistorial(Base):

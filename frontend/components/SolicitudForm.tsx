@@ -20,7 +20,9 @@ import {
 } from "@/lib/enums";
 import { solicitudPublicaSchema, type SolicitudPublicaForm } from "@/lib/schemas";
 
-type Props = { tipoTramite: "factibilidad" | "conexion" };
+import { FileUpload } from "./FileUpload";
+
+type Props = { tipoTramite: "factibilidad" | "conexion"; mode?: "publico" | "admin" };
 
 const EMPTY: Partial<SolicitudPublicaForm> = {
   tipo_solicitud: 1,
@@ -50,8 +52,9 @@ function Select({
   );
 }
 
-export function SolicitudForm({ tipoTramite }: Props) {
-  const [resultado, setResultado] = useState<{ num_solicitud: string } | null>(null);
+export function SolicitudForm({ tipoTramite, mode = "publico" }: Props) {
+  const isAdmin = mode === "admin";
+  const [resultado, setResultado] = useState<{ num_solicitud: string; id: string; rut: string } | null>(null);
   const {
     register,
     handleSubmit,
@@ -63,12 +66,25 @@ export function SolicitudForm({ tipoTramite }: Props) {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: SolicitudPublicaForm) =>
-      api<{ num_solicitud: string; id: string }>(`/public/solicitudes/${tipoTramite}`, {
+    mutationFn: async (data: SolicitudPublicaForm) => {
+      if (isAdmin) {
+        const res = await fetch("/api/admin/solicitudes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error || `Error ${res.status}`);
+        }
+        return (await res.json()) as { num_solicitud: string; id: string };
+      }
+      return api<{ num_solicitud: string; id: string }>(`/public/solicitudes/${tipoTramite}`, {
         method: "POST",
         body: JSON.stringify(data),
-      }),
-    onSuccess: (res) => setResultado(res),
+      });
+    },
+    onSuccess: (res, vars) => setResultado({ ...res, rut: vars.requirente_rut }),
   });
 
   const onSubmit: SubmitHandler<SolicitudPublicaForm> = (data) => mutation.mutate(data);
@@ -76,17 +92,41 @@ export function SolicitudForm({ tipoTramite }: Props) {
 
   if (resultado) {
     return (
-      <div className="card">
-        <h2 className="text-xl font-semibold text-green-700 mb-2">Solicitud ingresada</h2>
-        <p className="text-sm text-slate-600 mb-4">Guarda tu número de solicitud para hacer seguimiento.</p>
-        <div className="bg-slate-100 rounded p-4 font-mono text-lg mb-4">{resultado.num_solicitud}</div>
-        <div className="flex gap-3">
-          <Link href={`/seguimiento/${resultado.num_solicitud}`} className="btn-primary">
-            Ver seguimiento
+      <div className="card space-y-4">
+        <h2 className="text-xl font-semibold text-green-700">Solicitud ingresada</h2>
+        <p className="text-sm text-gray-600">Guarda tu número de solicitud para hacer seguimiento.</p>
+        <div className="bg-amber-50 rounded p-4 font-mono text-lg border border-amber-200">
+          {resultado.num_solicitud}
+        </div>
+
+        {!isAdmin && (
+          <div>
+            <h3 className="text-base font-semibold mt-2 mb-2">Adjuntar antecedentes (opcional)</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              Puedes adjuntar archivos PDF, imágenes, planos o documentos relacionados.
+            </p>
+            <FileUpload
+              upload={{
+                mode: "publico",
+                numSolicitud: resultado.num_solicitud,
+                rut: resultado.rut,
+              }}
+            />
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-2">
+          <Link
+            href={isAdmin ? `/admin/solicitudes` : `/seguimiento/${resultado.num_solicitud}`}
+            className="btn-primary"
+          >
+            {isAdmin ? "Volver al listado" : "Ver seguimiento"}
           </Link>
-          <Link href="/" className="btn-secondary">
-            Volver al inicio
-          </Link>
+          {!isAdmin && (
+            <Link href="/" className="btn-secondary">
+              Volver al inicio
+            </Link>
+          )}
         </div>
       </div>
     );

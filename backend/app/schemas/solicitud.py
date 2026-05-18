@@ -95,6 +95,49 @@ class TransicionEstadoIn(BaseModel):
     motivo: str | None = Field(None, max_length=1000)
 
 
+class SolicitudAdvanceIn(BaseModel):
+    """Avance unificado: cambia estado y/o setea campos operativos por etapa."""
+
+    nuevo_estado: int = Field(..., ge=0, le=6)
+    motivo: str | None = Field(None, max_length=1000)
+
+    respuesta_factibilidad: bool | None = None
+    estudios_tecnicos_requeridos: str | None = Field(None, max_length=500)
+    causa_rechazo_notificacion: str | None = Field(None, max_length=300)
+    fecha_respuesta_empresa: date | None = None
+    fecha_visita_terreno: date | None = None
+    hora_visita_terreno: time | None = None
+    observaciones_visita: str | None = Field(None, max_length=500)
+    fecha_ingreso_notificacion: date | None = None
+    fecha_rechazo_notificacion: date | None = None
+    fecha_conexion: date | None = None
+    fecha_entrega_cliente_id: date | None = None
+    presupuesto: Decimal | None = None
+    detalle_presupuesto: str | None = Field(None, max_length=1000)
+    modalidad_financiamiento: str | None = Field(None, max_length=200)
+    codigos_vnr: str | None = Field(None, max_length=200)
+    requiere_permisos_terceros: bool | None = None
+    cliente_id: str | None = Field(None, max_length=30)
+    medidor_id: str | None = Field(None, max_length=10)
+    numero_medidor: str | None = Field(None, max_length=15)
+    marca_medidor: str | None = Field(None, max_length=50)
+    modelo_medidor: str | None = Field(None, max_length=50)
+    punto_consumo_id: str | None = Field(None, max_length=30)
+    observaciones: str | None = Field(None, max_length=500)
+
+
+class SeguimientoUpdateIn(BaseModel):
+    """Cliente completa informacion cuando estado=PENDIENTE_INFORMACION_CLIENTE."""
+
+    requirente_rut: str = Field(..., max_length=15)
+    requirente_telefono: str | None = Field(None, max_length=20)
+    requirente_direccion: str | None = Field(None, max_length=200)
+    propietario_direccion: str | None = Field(None, max_length=200)
+    propietario_telefono: str | None = Field(None, max_length=20)
+    observaciones: str | None = Field(None, max_length=500)
+    mensaje: str | None = Field(None, max_length=1000)
+
+
 class HistorialOut(BaseModel):
     id: UUID
     estado_anterior: int | None
@@ -175,3 +218,7 @@ class SeguimientoOut(BaseModel):
     requirente_nombre: str
     direccion_instalacion: str
     observaciones: str | None
+    causa_rechazo_notificacion: str | None = None
+    estudios_tecnicos_requeridos: str | None = None
+    respuesta_factibilidad: bool | None = None
+    motivo_pendiente: str | None = None

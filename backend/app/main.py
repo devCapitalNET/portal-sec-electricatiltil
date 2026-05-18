@@ -4,9 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.core.logging_middleware import SecRequestLogMiddleware
 from app.routers import (
+    admin_export,
     admin_solicitudes,
     admin_users,
     auth,
+    documentos,
     public,
     sec_conexion,
     sec_factibilidad,
@@ -42,4 +44,6 @@ app.include_router(sec_conexion.router, tags=["SEC - Conexion/Ampliacion"])
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(admin_solicitudes.router, prefix="/admin", tags=["Admin"])
 app.include_router(admin_users.router, prefix="/admin", tags=["Admin"])
+app.include_router(admin_export.router, prefix="/admin", tags=["Admin"])
 app.include_router(public.router, prefix="/public", tags=["Publico"])
+app.include_router(documentos.router, tags=["Documentos"])

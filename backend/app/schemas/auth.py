@@ -32,3 +32,10 @@ class UserCreate(BaseModel):
     nombre: str
     password: str
     rol: str = "operador"
+
+
+class UserUpdate(BaseModel):
+    nombre: str | None = None
+    rol: str | None = None
+    activo: bool | None = None
+    password: str | None = None

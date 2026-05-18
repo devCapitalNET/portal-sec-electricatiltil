@@ -107,6 +107,35 @@ class RolUsuario(StrEnum):
     OPERADOR = "operador"
 
 
+class TipoDocumento(StrEnum):
+    ANTECEDENTE_CLIENTE = "antecedente_cliente"
+    ESTUDIO_TECNICO = "estudio_tecnico"
+    PRESUPUESTO = "presupuesto"
+    CERTIFICADO_FACTIBILIDAD = "certificado_factibilidad"
+    TE1 = "te1"
+    PLANO = "plano"
+    OTRO = "otro"
+
+
+class SubidoPor(StrEnum):
+    CLIENTE = "cliente"
+    ADMIN = "admin"
+
+
+class EstadoNotificacion(StrEnum):
+    ENVIADA = "enviada"
+    FALLIDA = "fallida"
+    PENDIENTE = "pendiente"
+
+
+TIPO_DOCUMENTO_PUBLICO = {
+    TipoDocumento.CERTIFICADO_FACTIBILIDAD,
+    TipoDocumento.PRESUPUESTO,
+    TipoDocumento.TE1,
+    TipoDocumento.PLANO,
+}
+
+
 ENUM_DICTIONARIES = {
     "TipoSolicitud": {
         1: "Conexion nueva",
@@ -178,4 +207,13 @@ ENUM_DICTIONARIES = {
         4: "SIRGAS Chile",
     },
     "TipoZonaUTM": {-1: "No aplica", 18: "Huso 18", 19: "Huso 19"},
+    "TipoDocumento": {
+        "antecedente_cliente": "Antecedente del cliente",
+        "estudio_tecnico": "Estudio tecnico",
+        "presupuesto": "Presupuesto",
+        "certificado_factibilidad": "Certificado de factibilidad",
+        "te1": "TE-1",
+        "plano": "Plano",
+        "otro": "Otro",
+    },
 }

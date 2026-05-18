@@ -8,13 +8,22 @@ from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import settings
 from app.core.auth_jwt import get_current_user
+from app.core.email import send_email
+from app.core.email_templates import (
+    factibilidad_admisible,
+    factibilidad_inadmisible,
+    pendiente_informacion,
+    solicitud_cerrada,
+)
 from app.core.enums import EstadoActual
 from app.core.num_solicitud import next_num_solicitud
 from app.database import get_db
 from app.models import Solicitud, SolicitudHistorial, User
 from app.schemas.solicitud import (
     SolicitudAdminCreate,
+    SolicitudAdvanceIn,
     SolicitudDetailOut,
     SolicitudListItem,
     SolicitudListResponse,
@@ -191,6 +200,120 @@ async def transicion_estado(
             usuario_id=user.id,
         )
     )
+
+    await db.commit()
+    result = await db.execute(
+        select(Solicitud).where(Solicitud.id == sol.id).options(selectinload(Solicitud.historial))
+    )
+    return SolicitudDetailOut.model_validate(result.scalar_one())
+
+
+@router.post("/solicitudes/{solicitud_id}/advance", response_model=SolicitudDetailOut)
+async def advance_solicitud(
+    solicitud_id: UUID,
+    body: SolicitudAdvanceIn,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> SolicitudDetailOut:
+    """Avance operativo: cambia estado y captura los campos exigidos por la norma."""
+    sol = (
+        await db.execute(select(Solicitud).where(Solicitud.id == solicitud_id))
+    ).scalar_one_or_none()
+    if sol is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solicitud no encontrada")
+
+    nuevo_estado = body.nuevo_estado
+    estado_anterior = sol.estado_actual
+    data = body.model_dump(exclude_unset=True, exclude={"nuevo_estado", "motivo"})
+
+    # Validacion: si declara inadmisible debe entregar estudios_tecnicos_requeridos
+    if nuevo_estado == EstadoActual.INADMISIBLE:
+        estudios = data.get("estudios_tecnicos_requeridos") or sol.estudios_tecnicos_requeridos
+        if not estudios:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Estado INADMISIBLE requiere 'estudios_tecnicos_requeridos'",
+            )
+
+    # Aplica campos provistos
+    for key, value in data.items():
+        setattr(sol, key, value)
+
+    # Auto-set fecha_respuesta_empresa para estados que la requieren
+    if nuevo_estado in {EstadoActual.ADMISIBLE, EstadoActual.INADMISIBLE, EstadoActual.CERRADA}:
+        if sol.fecha_respuesta_empresa is None:
+            sol.fecha_respuesta_empresa = date.today()
+
+    # Auto-set causa rechazo a partir del motivo si no se proveyo
+    if (
+        nuevo_estado == EstadoActual.INADMISIBLE
+        and not sol.causa_rechazo_notificacion
+        and body.motivo
+    ):
+        sol.causa_rechazo_notificacion = body.motivo[:300]
+        if not sol.fecha_rechazo_notificacion:
+            sol.fecha_rechazo_notificacion = date.today()
+
+    # Cambio de estado y registro de historial
+    if nuevo_estado != estado_anterior:
+        sol.estado_actual = nuevo_estado
+        db.add(
+            SolicitudHistorial(
+                solicitud_id=sol.id,
+                estado_anterior=estado_anterior,
+                estado_nuevo=nuevo_estado,
+                motivo=body.motivo,
+                usuario_id=user.id,
+            )
+        )
+
+    sol.fecha_ultima_actualizacion = date.today()
+
+    # Notificacion al requirente segun estado
+    template = None
+    rendered: tuple[str, str, str] | None = None
+    portal_url = settings.PORTAL_PUBLIC_URL
+    if nuevo_estado != estado_anterior or nuevo_estado in {
+        EstadoActual.ADMISIBLE,
+        EstadoActual.INADMISIBLE,
+        EstadoActual.PENDIENTE_INFORMACION_CLIENTE,
+        EstadoActual.CERRADA,
+    }:
+        if nuevo_estado == EstadoActual.ADMISIBLE:
+            template = "factibilidad_admisible"
+            rendered = factibilidad_admisible(sol.num_solicitud, sol.requirente_nombre, portal_url, body.motivo)
+        elif nuevo_estado == EstadoActual.INADMISIBLE:
+            template = "factibilidad_inadmisible"
+            rendered = factibilidad_inadmisible(
+                sol.num_solicitud,
+                sol.requirente_nombre,
+                portal_url,
+                sol.causa_rechazo_notificacion,
+                sol.estudios_tecnicos_requeridos,
+            )
+        elif nuevo_estado == EstadoActual.PENDIENTE_INFORMACION_CLIENTE:
+            template = "pendiente_informacion"
+            rendered = pendiente_informacion(
+                sol.num_solicitud,
+                sol.requirente_nombre,
+                portal_url,
+                body.motivo or "Se requiere informacion adicional. Revisa el portal.",
+            )
+        elif nuevo_estado == EstadoActual.CERRADA:
+            template = "solicitud_cerrada"
+            rendered = solicitud_cerrada(sol.num_solicitud, sol.requirente_nombre, portal_url)
+
+    if rendered and sol.requirente_email:
+        subject, html, text = rendered
+        await send_email(
+            db,
+            to=sol.requirente_email,
+            subject=subject,
+            html=html,
+            text=text,
+            template=template,
+            solicitud_id=sol.id,
+        )
 
     await db.commit()
     result = await db.execute(

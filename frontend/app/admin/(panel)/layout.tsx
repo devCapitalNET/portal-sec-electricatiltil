@@ -46,6 +46,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </svg>
           Usuarios
         </Link>
+        <Link
+          href="/admin/export"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-amber-50 hover:text-[#efa829] transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+          </svg>
+          Export SEC
+        </Link>
         <div className="pt-2">
           <LogoutButton />
         </div>

@@ -25,9 +25,12 @@ RUN pip install --upgrade pip && pip install \
     python-multipart==0.0.20 \
     email-validator==2.2.0 \
     httpx==0.28.1 \
+    aiosmtplib==3.0.2 \
+    openpyxl==3.1.5 \
     pytest==8.3.4 \
     pytest-asyncio==0.25.0
 
+RUN mkdir -p /app/uploads
 COPY . .
 
 EXPOSE 8000

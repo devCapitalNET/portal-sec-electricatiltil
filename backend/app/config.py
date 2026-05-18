@@ -16,5 +16,30 @@ class Settings(BaseSettings):
     EMPRESA_CODIGO: str = "999"
     EMPRESA_NOMBRE: str = "Empresa Electrica Municipal de TilTil"
 
+    UPLOADS_DIR: str = "/app/uploads"
+    MAX_UPLOAD_MB: int = 20
+    ALLOWED_MIME: list[str] = [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/msword",
+        "application/vnd.ms-excel",
+        "application/zip",
+        "text/plain",
+    ]
+
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_TLS: bool = True
+    SMTP_FROM: str = "no-reply@electricatiltil.cl"
+    SMTP_FROM_NAME: str = "Electrica TilTil"
+    ADMIN_NOTIFY_EMAIL: str = "admin@tiltil.cl"
+    PORTAL_PUBLIC_URL: str = "http://localhost:3000"
+
 
 settings = Settings()
