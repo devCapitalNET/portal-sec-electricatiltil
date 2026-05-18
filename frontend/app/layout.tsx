@@ -2,6 +2,7 @@ import "./globals.css";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Providers } from "./providers";
+import { asset } from "@/lib/assets";
 
 export const metadata: Metadata = {
   title: "Portal de Solicitudes — Eléctrica TilTil",
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="max-w-7xl mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
               <Link href="/" className="flex items-center">
                 <img
-                  src="/images/logo.svg"
+                  src={asset("/images/logo.svg")}
                   alt="Eléctrica TilTil — Empresa Municipal"
                   className="h-10 w-auto"
                 />
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                 <div>
                   <img
-                    src="/images/logo.svg"
+                    src={asset("/images/logo.svg")}
                     alt="Eléctrica TilTil"
                     className="h-8 w-auto mb-3"
                   />

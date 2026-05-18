@@ -1,13 +1,14 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/LogoutButton";
+import { asset } from "@/lib/assets";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid md:grid-cols-[220px_1fr] gap-6">
       <aside className="space-y-0.5 text-sm">
         <div className="mb-4">
-          <img src="/images/logo.svg" alt="Eléctrica TilTil" className="h-7 w-auto" />
+          <img src={asset("/images/logo.svg")} alt="Eléctrica TilTil" className="h-7 w-auto" />
         </div>
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-3 mb-2">Panel interno</p>
         <Link

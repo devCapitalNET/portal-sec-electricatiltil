@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { loginSchema, type LoginForm } from "@/lib/schemas";
+import { asset } from "@/lib/assets";
 
 function LoginForm() {
   const router = useRouter();
@@ -20,7 +21,7 @@ function LoginForm() {
   return (
     <div className="max-w-sm mx-auto">
       <div className="mb-6 text-center">
-        <img src="/images/logo.svg" alt="Eléctrica TilTil" className="h-9 w-auto mx-auto mb-4" />
+        <img src={asset("/images/logo.svg")} alt="Eléctrica TilTil" className="h-9 w-auto mx-auto mb-4" />
         <h1 className="text-xl font-bold text-gray-900">Acceso interno</h1>
         <p className="text-sm text-gray-500 mt-1">Personal de Empresa Eléctrica Municipal de TilTil</p>
       </div>
