@@ -51,21 +51,22 @@ services:
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # Estas vars se inlinean en el bundle del cliente durante `next build`.
+        # Si las cambias hay que rebuild: `docker compose build frontend`.
+        NEXT_PUBLIC_BASE_PATH: "/portaltiltil"
+        NEXT_PUBLIC_API_URL: ""
     container_name: portal_tiltil_frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8001
+      # Solo se usa server-side (route handlers, server components).
       API_URL_INTERNAL: http://backend:8000
-      NEXT_PUBLIC_BASE_PATH: ""
+      NODE_ENV: production
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    command: pnpm dev
 
 volumes:
   pgdata:
