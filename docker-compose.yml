@@ -19,24 +19,8 @@ services:
   backend:
     build: ./backend
     container_name: portal_tiltil_backend
-    environment:
-      DATABASE_URL: postgresql+asyncpg://tiltil:tiltil_dev@db:5432/portal_instalacion
-      DATABASE_URL_SYNC: postgresql+psycopg2://tiltil:tiltil_dev@db:5432/portal_instalacion
-      JWT_SECRET: dev-secret-change-me-in-prod
-      JWT_ALGORITHM: HS256
-      JWT_EXPIRE_MINUTES: 480
-      CORS_ORIGINS: '["http://localhost:3000"]'
-      UPLOADS_DIR: /app/uploads
-      MAX_UPLOAD_MB: "20"
-      SMTP_HOST: ""
-      SMTP_PORT: "587"
-      SMTP_USER: ""
-      SMTP_PASSWORD: ""
-      SMTP_TLS: "true"
-      SMTP_FROM: "no-reply@electricatiltil.cl"
-      SMTP_FROM_NAME: "Electrica TilTil"
-      ADMIN_NOTIFY_EMAIL: "admin@tiltil.cl"
-      PORTAL_PUBLIC_URL: "http://localhost:3000"
+    env_file:
+      - ./backend/.env
     ports:
       - "8001:8000"
     depends_on:
@@ -54,15 +38,15 @@ services:
     build:
       context: ./frontend
       args:
-        # Estas vars se inlinean en el bundle del cliente durante `next build`.
-        # Si las cambias hay que rebuild: `docker compose build frontend`.
-        NEXT_PUBLIC_BASE_PATH: "/portaltiltil"
-        NEXT_PUBLIC_API_URL: ""
+        # Vars NEXT_PUBLIC_* se inlinean en el bundle del cliente durante
+        # `next build`. Se leen del .env de la raiz del proyecto (que
+        # docker compose usa para sustitucion ${VAR}). Si las cambias hay
+        # que rebuild: `docker compose build frontend`.
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
     container_name: portal_tiltil_frontend
-    environment:
-      # Solo se usa server-side (route handlers, server components).
-      API_URL_INTERNAL: http://backend:8000
-      NODE_ENV: production
+    env_file:
+      - ./frontend/.env
     ports:
       - "3000:3000"
     depends_on:
