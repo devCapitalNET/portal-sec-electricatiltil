@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { api } from "@/lib/api";
 import { apiUrl } from "@/lib/assets";
 import {
   DATUM,
@@ -80,10 +79,16 @@ export function SolicitudForm({ tipoTramite, mode = "publico" }: Props) {
         }
         return (await res.json()) as { num_solicitud: string; id: string };
       }
-      return api<{ num_solicitud: string; id: string }>(`/public/solicitudes/${tipoTramite}`, {
+      const res = await fetch(apiUrl(`/api/public/solicitudes/${tipoTramite}`), {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `Error ${res.status}`);
+      }
+      return (await res.json()) as { num_solicitud: string; id: string };
     },
     onSuccess: (res, vars) => setResultado({ ...res, rut: vars.requirente_rut }),
   });
