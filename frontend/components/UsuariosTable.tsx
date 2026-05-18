@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
+
 type User = { id: string; email: string; nombre: string; rol: string; activo: boolean };
 
 export function UsuariosTable({ initialUsers }: { initialUsers: User[] }) {
@@ -32,7 +34,7 @@ export function UsuariosTable({ initialUsers }: { initialUsers: User[] }) {
         activo: form.activo,
       };
       if (form.password) payload.password = form.password;
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/users/${id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -55,7 +57,7 @@ export function UsuariosTable({ initialUsers }: { initialUsers: User[] }) {
     setBusy(u.id);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/users/${u.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/users/${u.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ activo: !u.activo }),

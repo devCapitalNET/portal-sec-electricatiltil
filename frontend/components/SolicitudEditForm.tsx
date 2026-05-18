@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
+
 type EditableFields = {
   requirente_telefono?: string | null;
   requirente_direccion?: string | null;
@@ -46,7 +48,7 @@ export function SolicitudEditForm({ id, initial }: Props) {
         if (v === "" || v === undefined) continue;
         cleaned[k] = v;
       }
-      const res = await fetch(`/api/admin/solicitudes/${id}/patch`, {
+      const res = await fetch(apiUrl(`/api/admin/solicitudes/${id}/patch`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cleaned),

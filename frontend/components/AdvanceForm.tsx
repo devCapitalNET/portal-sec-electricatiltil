@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ESTADO_ACTUAL } from "@/lib/enums";
+import { apiUrl } from "@/lib/assets";
 
 const ESTADO_HELP: Record<number, string> = {
   0: "Ingresada — estado inicial al recibirse la solicitud.",
@@ -107,7 +108,7 @@ export function AdvanceForm({
       if (form.modelo_medidor) body.modelo_medidor = form.modelo_medidor;
       if (form.observaciones) body.observaciones = form.observaciones;
 
-      const res = await fetch(`/api/admin/solicitudes/${id}/advance`, {
+      const res = await fetch(apiUrl(`/api/admin/solicitudes/${id}/advance`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

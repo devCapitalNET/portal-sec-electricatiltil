@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
+
 export default function NuevoUsuarioPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", nombre: "", password: "", rol: "operador" });
@@ -15,7 +17,7 @@ export default function NuevoUsuarioPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/users", {
+      const res = await fetch(apiUrl("/api/admin/users"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

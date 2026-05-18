@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
 import { TIPO_DOCUMENTO, TIPOS_DOCUMENTO_ADMIN, TIPOS_DOCUMENTO_CLIENTE } from "@/lib/enums";
 
 import { Spinner } from "./Spinner";
@@ -59,10 +60,10 @@ export function FileUpload({ upload, onUploaded, maxMB = 20 }: Props) {
       form.append("tipo", tipo);
       let url: string;
       if (upload.mode === "admin") {
-        url = `/api/admin/documentos/upload?solicitud_id=${encodeURIComponent(upload.solicitudId)}`;
+        url = apiUrl(`/api/admin/documentos/upload?solicitud_id=${encodeURIComponent(upload.solicitudId)}`);
       } else {
         form.append("rut", upload.rut);
-        url = `/api/public/documentos/upload?num=${encodeURIComponent(upload.numSolicitud)}`;
+        url = apiUrl(`/api/public/documentos/upload?num=${encodeURIComponent(upload.numSolicitud)}`);
       }
       const res = await fetch(url, { method: "POST", body: form });
       if (!res.ok) {

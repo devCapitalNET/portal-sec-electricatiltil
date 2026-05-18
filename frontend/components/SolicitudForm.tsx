@@ -7,6 +7,7 @@ import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
 import { api } from "@/lib/api";
+import { apiUrl } from "@/lib/assets";
 import {
   DATUM,
   DEFINITIVO_PROVISORIO,
@@ -68,7 +69,7 @@ export function SolicitudForm({ tipoTramite, mode = "publico" }: Props) {
   const mutation = useMutation({
     mutationFn: async (data: SolicitudPublicaForm) => {
       if (isAdmin) {
-        const res = await fetch("/api/admin/solicitudes", {
+        const res = await fetch(apiUrl("/api/admin/solicitudes"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

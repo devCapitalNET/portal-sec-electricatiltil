@@ -1,13 +1,23 @@
 /**
- * Helper para resolver rutas de assets estaticos respetando NEXT_PUBLIC_BASE_PATH.
+ * Helpers para construir URLs relativas respetando NEXT_PUBLIC_BASE_PATH.
  *
- * Los componentes <Link> y <Image> de Next.js prefijan basePath automaticamente,
- * pero los <img src="..."> y otras referencias crudas no. Usar este helper para
- * cualquier asset bajo /public que se referencie directamente.
+ * Next.js NO prefija basePath en rutas absolutas pasadas a `fetch("/...")`
+ * ni en `<img src="/...">`. Solo lo hace en <Link> y <Image>. Para todo lo
+ * demas (fetch a route handlers, descargas, assets crudos) usar estos helpers.
  */
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-export function asset(path: string): string {
+function withBase(path: string): string {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${basePath}${normalized}`;
+}
+
+/** Prefija basePath a una ruta absoluta de asset bajo /public. */
+export function asset(path: string): string {
+  return withBase(path);
+}
+
+/** Prefija basePath a una ruta de API (route handler de Next.js). */
+export function apiUrl(path: string): string {
+  return withBase(path);
 }

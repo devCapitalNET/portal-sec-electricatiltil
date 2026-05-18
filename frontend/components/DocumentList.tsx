@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
 import { TIPO_DOCUMENTO } from "@/lib/enums";
 
 import { Spinner } from "./Spinner";
@@ -48,8 +49,8 @@ export function DocumentList({ mode, refreshKey }: { mode: Mode; refreshKey?: nu
     try {
       const url =
         mode.mode === "admin"
-          ? `/api/admin/documentos/list?solicitud_id=${encodeURIComponent(mode.solicitudId)}`
-          : `/api/public/documentos/list?num=${encodeURIComponent(mode.numSolicitud)}`;
+          ? apiUrl(`/api/admin/documentos/list?solicitud_id=${encodeURIComponent(mode.solicitudId)}`)
+          : apiUrl(`/api/public/documentos/list?num=${encodeURIComponent(mode.numSolicitud)}`);
       const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       setDocs(await res.json());
@@ -73,7 +74,7 @@ export function DocumentList({ mode, refreshKey }: { mode: Mode; refreshKey?: nu
     if (!confirm("¿Eliminar este documento?")) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/documentos/delete?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(apiUrl(`/api/admin/documentos/delete?id=${encodeURIComponent(id)}`), {
         method: "DELETE",
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -106,8 +107,8 @@ export function DocumentList({ mode, refreshKey }: { mode: Mode; refreshKey?: nu
       {docs.map((d) => {
         const href =
           mode.mode === "admin"
-            ? `/api/admin/documentos/download?id=${encodeURIComponent(d.id)}`
-            : `/api/public/documentos/download?id=${encodeURIComponent(d.id)}&num=${encodeURIComponent(mode.numSolicitud)}`;
+            ? apiUrl(`/api/admin/documentos/download?id=${encodeURIComponent(d.id)}`)
+            : apiUrl(`/api/public/documentos/download?id=${encodeURIComponent(d.id)}&num=${encodeURIComponent(mode.numSolicitud)}`);
         return (
           <li key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 flex-1">

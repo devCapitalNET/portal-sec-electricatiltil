@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
+
 export default function ExportPage() {
   const [tipo, setTipo] = useState<"factibilidad" | "conexion">("factibilidad");
   const today = new Date();
@@ -19,7 +21,7 @@ export default function ExportPage() {
       const params = new URLSearchParams({ tipo });
       if (desde) params.set("desde", desde);
       if (hasta) params.set("hasta", hasta);
-      const res = await fetch(`/api/admin/export?${params.toString()}`);
+      const res = await fetch(apiUrl(`/api/admin/export?${params.toString()}`));
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         throw new Error(body?.error || `Error ${res.status}`);

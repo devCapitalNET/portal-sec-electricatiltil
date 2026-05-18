@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
+
 import { FileUpload } from "./FileUpload";
 
 export function CompletarInformacion({
@@ -34,7 +36,7 @@ export function CompletarInformacion({
       if (form.requirente_direccion) payload.requirente_direccion = form.requirente_direccion;
       if (form.mensaje) payload.mensaje = form.mensaje;
 
-      const res = await fetch(`/api/public/seguimiento/update?num=${encodeURIComponent(numSolicitud)}`, {
+      const res = await fetch(apiUrl(`/api/public/seguimiento/update?num=${encodeURIComponent(numSolicitud)}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

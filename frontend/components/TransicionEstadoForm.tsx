@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { apiUrl } from "@/lib/assets";
 import { ESTADO_ACTUAL } from "@/lib/enums";
 
 export function TransicionEstadoForm({ id, estadoActual }: { id: string; estadoActual: number }) {
@@ -22,7 +23,7 @@ export function TransicionEstadoForm({ id, estadoActual }: { id: string; estadoA
         }
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/admin/solicitudes/${id}/transicion`, {
+        const res = await fetch(apiUrl(`/api/admin/solicitudes/${id}/transicion`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nuevo_estado: nuevo, motivo: motivo || null }),

@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { loginSchema, type LoginForm } from "@/lib/schemas";
-import { asset } from "@/lib/assets";
+import { apiUrl, asset } from "@/lib/assets";
 
 function LoginForm() {
   const router = useRouter();
@@ -29,7 +29,7 @@ function LoginForm() {
         <form
           onSubmit={handleSubmit(async (data) => {
             setError(null);
-            const res = await fetch("/api/admin/login", {
+            const res = await fetch(apiUrl("/api/admin/login"), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
@@ -60,9 +60,7 @@ function LoginForm() {
             {formState.isSubmitting ? "Ingresando…" : "Ingresar"}
           </button>
         </form>
-        <p className="mt-4 text-xs text-gray-400 text-center">
-          Demo: <code className="font-mono">admin@tiltil.cl</code> / <code className="font-mono">admin123</code>
-        </p>
+        
       </div>
     </div>
   );
